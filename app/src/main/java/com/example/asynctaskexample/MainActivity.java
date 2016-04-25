@@ -49,23 +49,39 @@ public class MainActivity extends AppCompatActivity {
         ProgressDialog progressDialog;
 
         @Override
+        protected void onPreExecute() {
+            progressDialog = ProgressDialog.show(MainActivity.this,
+                    "ProgressDialog",
+                    "Wait for "+time.getText().toString()+ " seconds");
+        }
+
+        @Override
         protected String doInBackground(String... params) {
             publishProgress("Sleeping..."); // Calls onProgressUpdate()
             int seconds = Integer.parseInt(params[0]);
-            resp = "Slept for " + params[0] + " seconds";
-            for (int i = 0; i < seconds; i++) {
+            resp = "Slept for 0 seconds";
+            int i = 0;
+            while (!isCancelled() && i < seconds){
                 try {
                     Thread.sleep(1000);
 
                 } catch (InterruptedException e) {
+                    cancel(true);
                     e.printStackTrace();
-                    resp = e.getMessage();
                 } catch (Exception e) {
+                    cancel(true);
                     e.printStackTrace();
-                    resp = e.getMessage();
                 }
 
-                publishProgress("Slept " + (i+1) + " seconds");
+                resp = "Slept " + (i+1) + " seconds";
+
+                //If the given time is more than 3 seconds is going to be cancelled
+                if (i == 3) {
+                    cancel(true);
+                }
+
+                publishProgress(resp);
+                i++;
             }
             return resp;
         }
@@ -80,10 +96,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         @Override
-        protected void onPreExecute() {
-            progressDialog = ProgressDialog.show(MainActivity.this,
-                    "ProgressDialog",
-                    "Wait for "+time.getText().toString()+ " seconds");
+        protected void onCancelled(String result) {
+            progressDialog.dismiss();
+            finalResult.setText(result + "\n before being cancelled");
         }
 
 
