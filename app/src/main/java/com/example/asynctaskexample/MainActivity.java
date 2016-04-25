@@ -1,16 +1,26 @@
 package com.example.asynctaskexample;
 
 import android.app.ProgressDialog;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private final boolean CANCELAR_SI_MAS_DE_100_IMAGENES = false;
+    private final String TAG_LOG = "test";
+    private TextView TV_mensaje;
+
+
     private Button button;
     private EditText time;
     private TextView finalResult;
@@ -32,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
     private class AsyncTaskRunner extends AsyncTask<String, String, String> {
 
         private String resp;
@@ -40,17 +51,21 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... params) {
             publishProgress("Sleeping..."); // Calls onProgressUpdate()
-            try {
-                int time = Integer.parseInt(params[0])*1000;
+            int seconds = Integer.parseInt(params[0]);
+            resp = "Slept for " + params[0] + " seconds";
+            for (int i = 0; i < seconds; i++) {
+                try {
+                    Thread.sleep(1000);
 
-                Thread.sleep(time);
-                resp = "Slept for " + params[0] + " seconds";
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                resp = e.getMessage();
-            } catch (Exception e) {
-                e.printStackTrace();
-                resp = e.getMessage();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    resp = e.getMessage();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    resp = e.getMessage();
+                }
+
+                publishProgress("Slept " + (i+1) + " seconds");
             }
             return resp;
         }
@@ -74,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(String... text) {
-            finalResult.setText(text[0]);
+            progressDialog.setMessage(text[0]);
 
         }
     }
